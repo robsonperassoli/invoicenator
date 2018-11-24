@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <title>Invoice</title>
+  <style>
+    * { font-family: arial, sans-serif; margin: 0; padding: 0; }
+    #page { /* background-color: #ccc; */ width: 700pt; padding: 2cm; }
+    
+    header { position: relative; }
+    header #prepared-for p:first-child { margin-bottom: 10px; text-decoration: underline; }
+    header h1 { position: absolute; right: 0px; top: 30%; }
+
+    #services { margin-top: 40px; width: 100%; border-collapse: collapse; }
+    #services tbody { min-height: 100px; }
+    #services thead tr th,
+    #services tfoot tr td:not(:first-child) { background-color: #286ee6; color: #f3f3f3; }    
+    #services thead tr th,
+    #services tfoot tr td { padding: 5px; }
+    #services tbody tr td { padding: 15px 5px; }
+    #services thead tr th:not(:first-child), #services tbody tr td:not(:first-child) { text-align: right; }
+    #services thead tr th:first-child { text-align: left; }
+    #services tfoot tr td { text-align: right; font-weight: bold; }
+
+    footer { margin-top: 40px; padding: 30px 20px; background-color: #e3e3e3; padding-bottom: 30px; }
+    footer h2 { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+    footer > section { display: inline-block; width: 49%; vertical-align: top; }
+    footer > #payable-to > p:first-child { margin-bottom: 10px; }
+    footer > #payable-to > p:not(:first-child),
+    footer > #notes > p { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div id="page">
+    <header>
+      <section id="prepared-for">
+        <p>Prepared for</p>
+        <p>Entity Name: <strong><%= @receiver["name"] %></strong></p>
+        <p>Entity Number: <strong><%= @receiver["number"] %></strong></p>
+        <p>Entity Address: <strong><%= @receiver["address_line1"] %></strong></p>
+        <p>Entity City, State, Zip: <strong><%= @receiver["address_line2"] %></strong></p>
+      </section>
+      <h1>INVOICE</h1>
+    </header>
+    <table id="services">
+      <thead>
+        <tr>
+          <th>WORK DESCRIPTION</th>
+          <th>QTY (HOURS)</th>
+          <th>UNIT PRICE</th>
+          <th>SUB TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for item <- @details["items"] do %>
+          <tr>
+            <td><%= item["description"] %></td>
+            <td><%= item["qty"] %> <%= item["unit"] %>s</td>
+            <td><%= format_money(item["unit_value"], @details["currency"]) %>/<%= item["unit"] %></td>
+            <td><%= format_money(item["total"], @details["currency"]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"></td>
+          <td>GRAND TOTAL</td>
+          <td><%= format_money(@details["total"], @details["currency"]) %></td>
+        </tr>
+      </tfoot>
+    </table>
+    <footer>
+      <h2>PAYMENT TERMS</h2>
+      <section id="payable-to">
+        <p>To be made payable to</p>
+        <p><%= @sender["name"] %></p>
+        <p>CPF: <%= @sender["cpf"] %></p>
+        <p>CNPJ: <%= @sender["cnpj"] %></p>
+      </section>
+      <section id="notes">
+        <p>APPROVED BY</p>
+        <p><%= @receiver["approved_by"] %></p>
+        <br>
+        <p>FOR <%= @sender["name"] %><p>
+        <p>DATE <%= long_date_format(@date) %></p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>
